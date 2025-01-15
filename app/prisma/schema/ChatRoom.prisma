@@ -1,0 +1,21 @@
+model ChatRoom {
+  id Int @id @default(autoincrement())
+
+  chat_room_key String @unique @default(uuid())
+
+  type String
+
+  chat_room_creator String
+
+  total_messages Int @default(0)
+
+  last_message String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  users UserChatRoom[]
+
+  messages Message[]
+}

@@ -1,0 +1,31 @@
+model Message {
+  id Int @id @default(autoincrement())
+
+  message_key String @unique @default(uuid())
+
+  type String
+
+  author_id Int
+
+  chat_room_id Int
+
+  text_data String?
+
+  audio_data String?
+
+  image_data String?
+
+  video_data String?
+
+  file_data String?
+
+  is_read Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [author_id], references: [id])
+
+  chat_room ChatRoom @relation(fields: [chat_room_id], references: [id])
+}

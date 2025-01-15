@@ -1,0 +1,67 @@
+model User {
+  id Int @id @default(autoincrement())
+
+  user_key String @unique
+
+  firstname String
+
+  lastname String
+
+  email String @unique
+
+  login String @unique
+
+  password String
+
+  about_user String?
+
+  path_avatar String?
+
+  view_email Int @default(2)
+
+  view_online Int @default(2)
+
+  view_shipment Int @default(2)
+
+  view_avatar Int @default(2)
+
+  if_calls Int @default(2)
+
+  if_channels Int @default(2)
+
+  if_code_password Boolean @default(false)
+
+  code_password String?
+
+  double_authentication Boolean @default(false)
+
+  language_id Int @default(0)
+
+  theme_id Int @default(0)
+
+  color_id Int @default(0)
+
+  message_color_id Int @default(0)
+
+  path_background_chatroom_id String?
+
+  sending_enter Boolean @default(true)
+
+  double_click_message Boolean @default(true)
+
+  reaction_to_message Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user_keys UserKeys[]
+
+  roles UserRoles[]
+
+  chat_rooms UserChatRoom[]
+
+  messages Message[]
+
+  unread_messages UnreadMessage[]
+}

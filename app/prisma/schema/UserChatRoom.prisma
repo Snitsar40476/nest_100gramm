@@ -1,0 +1,11 @@
+model UserChatRoom {
+  user_id Int
+
+  chat_room_id Int
+
+  user User @relation(fields: [user_id], references: [id])
+
+  chat_room ChatRoom @relation(fields: [chat_room_id], references: [id])
+
+  @@id([user_id, chat_room_id])
+}

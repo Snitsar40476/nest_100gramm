@@ -1,0 +1,213 @@
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model ChatRoom {
+  id Int @id @default(autoincrement())
+
+  chat_room_key String @unique @default(uuid())
+
+  type String
+
+  chat_room_creator String
+
+  total_messages Int @default(0)
+
+  last_message String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  users UserChatRoom[]
+
+  messages Message[]
+}
+model Message {
+  id Int @id @default(autoincrement())
+
+  message_key String @unique @default(uuid())
+
+  type String
+
+  author_id Int
+
+  chat_room_id Int
+
+  text_data String?
+
+  audio_data String?
+
+  image_data String?
+
+  video_data String?
+
+  file_data String?
+
+  is_read Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [author_id], references: [id])
+
+  chat_room ChatRoom @relation(fields: [chat_room_id], references: [id])
+}
+model Role {
+  id Int @id @default(autoincrement())
+
+  value String
+
+  description String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  users UserRoles[]
+}
+model Token {
+  id Int @id @default(autoincrement())
+
+  token String @unique
+
+  exp DateTime
+
+  user_key String
+
+  user_agent String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+model UnreadMessage {
+  id Int @id @default(autoincrement())
+
+  chat_room_id Int
+
+  message_id Int
+
+  user_id Int
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+}
+model User {
+  id Int @id @default(autoincrement())
+
+  user_key String @unique
+
+  firstname String
+
+  lastname String
+
+  email String @unique
+
+  login String @unique
+
+  password String
+
+  about_user String?
+
+  path_avatar String?
+
+  view_email Int @default(2)
+
+  view_online Int @default(2)
+
+  view_shipment Int @default(2)
+
+  view_avatar Int @default(2)
+
+  if_calls Int @default(2)
+
+  if_channels Int @default(2)
+
+  if_code_password Boolean @default(false)
+
+  code_password String?
+
+  double_authentication Boolean @default(false)
+
+  language_id Int @default(0)
+
+  theme_id Int @default(0)
+
+  color_id Int @default(0)
+
+  message_color_id Int @default(0)
+
+  path_background_chatroom_id String?
+
+  sending_enter Boolean @default(true)
+
+  double_click_message Boolean @default(true)
+
+  reaction_to_message Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user_keys UserKeys[]
+
+  roles UserRoles[]
+
+  chat_rooms UserChatRoom[]
+
+  messages Message[]
+
+  unread_messages UnreadMessage[]
+}
+
+model UserChatRoom {
+  user_id Int
+
+  chat_room_id Int
+
+  user User @relation(fields: [user_id], references: [id])
+
+  chat_room ChatRoom @relation(fields: [chat_room_id], references: [id])
+
+  @@id([user_id, chat_room_id])
+}
+model UserKeys {
+  id Int @id @default(autoincrement())
+
+  aes_key String
+
+  public_key String
+
+  user_agent String
+
+  user_id Int
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model UserRoles {
+  user_id Int
+
+  role_id Int
+
+  user User @relation(fields: [user_id], references: [id])
+
+  role Role @relation(fields: [role_id], references: [id])
+
+  @@id([user_id, role_id])
+}

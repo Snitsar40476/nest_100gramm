@@ -1,0 +1,15 @@
+model UnreadMessage {
+  id Int @id @default(autoincrement())
+
+  chat_room_id Int
+
+  message_id Int
+
+  user_id Int
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+}

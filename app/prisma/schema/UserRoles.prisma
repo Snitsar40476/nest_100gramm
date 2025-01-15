@@ -1,0 +1,11 @@
+model UserRoles {
+  user_id Int
+
+  role_id Int
+
+  user User @relation(fields: [user_id], references: [id])
+
+  role Role @relation(fields: [role_id], references: [id])
+
+  @@id([user_id, role_id])
+}

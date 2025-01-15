@@ -1,0 +1,157 @@
+version: '0.0.1'
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: 5
+    networks:
+      - ${NETWORKS}
+
+
+  rabbit1:
+    image: 'rabbitmq:management'
+    hostname: 'rabbit1'
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbit1_data:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    ports:
+      - ${RABBITMQ_INTERFACE_1_PORT}
+      - ${RABBITMQ_1_PORT}
+    networks:
+      - ${NETWORKS}
+
+
+  rabbit2:
+    image: 'rabbitmq:management'
+    hostname: 'rabbit2'
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbit2_data:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    ports:
+      - ${RABBITMQ_INTERFACE_2_PORT}
+      - ${RABBITMQ_2_PORT}
+    networks:
+      - ${NETWORKS}
+
+
+  rabbit3:
+    image: 'rabbitmq:management'
+    hostname: 'rabbit3'
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbit3_data:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    ports:
+      - ${RABBITMQ_INTERFACE_3_PORT}
+      - ${RABBITMQ_3_PORT}
+    networks:
+      - ${NETWORKS}
+
+
+  pgadmin:
+    image: 'dpage/pgadmin4'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - ${PGADMIN_PORT}
+    depends_on:
+      - postgres
+    networks:
+      - ${NETWORKS}
+
+
+  api:
+    build: ./app
+    ports:
+      - ${API_PORT}
+    environment:
+      - RABBITMQ_URLS=amqp://rabbit1:5671,amqp://rabbit2:5672,amqp://rabbit3:5673
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - rabbit1
+      - rabbit2
+      - rabbit3
+      - postgres
+    networks:
+      - ${NETWORKS}
+
+
+  auth-service:
+    build: ./app/services/auth-service
+    ports:
+      - ${AUTH_SERVICE_PORT}
+    environment:
+      - RABBITMQ_URLS=amqp://rabbit1:5671,amqp://rabbit2:5672,amqp://rabbit3:5673
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - rabbit1
+      - rabbit2
+      - rabbit3
+      - postgres
+    networks:
+      - ${NETWORKS}
+
+
+  user-service:
+    build: ./app/services/user-service
+    ports:
+      - ${USER_SERVICE_PORT}
+    environment:
+      - RABBITMQ_URLS=amqp://rabbit1:5671,amqp://rabbit2:5672,amqp://rabbit3:5673
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - rabbit1
+      - rabbit2
+      - rabbit3
+      - postgres
+    networks:
+      - ${NETWORKS}
+
+
+  role-service:
+    build: ./app/services/role-service
+    ports:
+      - ${ROLE_SERVICE_PORT}
+    environment:
+      - RABBITMQ_URLS=amqp://rabbit1:5671,amqp://rabbit2:5672,amqp://rabbit3:5673
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - rabbit1
+      - rabbit2
+      - rabbit3
+      - postgres
+    networks:
+      - ${NETWORKS}
+
+
+volumes:
+  rabbit1_data:
+  rabbit2_data:
+  rabbit3_data:
+  postgres_data:
+
+networks:
+  100gramm-network:
